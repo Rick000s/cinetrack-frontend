@@ -1,0 +1,51 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #111;
+    color: #fff;
+    margin: 0;
+    display: flex;
+}
+
+/* Бокове Меню */
+.sidebar {
+    width: 240px;
+    background-color: #161616;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    border-right: 1px solid #222;
+}
+.sidebar h2 { color: #E50914; margin-bottom: 30px; }
+.nav-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #aaa;
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+.nav-btn.active, .nav-btn:hover { background-color: #E50914; color: white; }
+
+/* Головний контент */
+.main-content { flex: 1; padding: 40px; height: 100vh; overflow-y: auto; }
+.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+h1 { margin: 0; font-size: 28px; }
+
+/* Кнопки */
+.btn { background-color: #E50914; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px; }
+.btn-secondary { background-color: #333; }
+.btn:hover { opacity: 0.9; }
+
+/* Вкладки */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Картки фільмів */
+.grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.card { background-color: #1c1c1c; border: 1px solid #222; padding: 20px; border-radius: 8px; border-top: 4px solid #E50914; }
+.rating { color: #ffc107; font-weight: bold; }

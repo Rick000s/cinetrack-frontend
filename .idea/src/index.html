@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineTrack — Мій Кінопростір</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>🎬 CineTrack</h2>
+    <button class="nav-btn active" onclick="switchTab('movies-tab')">🍿 Фільми</button>
+    <button class="nav-btn" onclick="switchTab('users-tab')">👥 Користувачі</button>
+</div>
+
+<div class="main-content">
+    <div id="movies-tab" class="tab-content active">
+        <div class="header-actions">
+            <h1>Каталог Фільмів</h1>
+            <div>
+                <button class="btn" onclick="loadAllMovies()">Показати всі</button>
+                <button class="btn btn-secondary" onclick="loadRandomMovie()">🎲 Рандом</button>
+            </div>
+        </div>
+        <div id="movies-list" class="grid-container"></div>
+    </div>
+
+    <div id="users-tab" class="tab-content">
+        <h1>Спільнота (Користувачі)</h1>
+        <p>Тут будуть твої друзі, коли ми повністю підключимо логіку користувачів на бекенді.</p>
+        <div id="users-list" class="grid-container"></div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
