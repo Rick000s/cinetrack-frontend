@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineTrack — Tvůj Filmový Svět</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sidebar">
+    <a href="#" class="sidebar__logo-link">
+        <h2 class="sidebar__title">🎬 CineTrack</h2>
+    </a>
+    <button class="nav-btn active" onclick="switchTab('movies-tab', event)">🍿 Filmy</button>
+    <button class="nav-btn" onclick="switchTab('favorites-tab', event)">❤️ Oblíbené</button>
+    <button class="nav-btn" onclick="switchTab('users-tab', event)">👥 Uživatelé</button>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <h1 class="page-title" id="main-title">Katalog Filmů</h1>
+
+        <div class="user-profile-menu">
+            <div class="avatar-button" onclick="toggleProfileMenu()">
+                <span class="avatar-icon">👤</span>
+                <span class="user-status-dot"></span>
+            </div>
+            <div class="dropdown-content" id="profileDropdown">
+                <div class="dropdown-header">
+                    <strong id="current-username">A. Vývojář</strong>
+                    <span id="current-user-role">Administrátor</span>
+                </div>
+                <hr>
+                <div class="switch-mock-user">
+                    <label>Změnit roli (test):</label>
+                    <select id="userRoleSelector" onchange="mockUserChange(this.value)">
+                        <option value="ADMIN">Administrátor</option>
+                        <option value="MODERATOR">Moderátor</option>
+                        <option value="USER">Uživatel</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="movieSearchInput" placeholder="Hledat filmy..." oninput="handleSearch()">
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="loadMovies()">Zobrazit vše</button>
+            <button class="btn btn-primary" onclick="loadRandomMovie()">🎲 Náhodný</button>
+        </div>
+    </div>
+
+    <!-- Filmy -->
+    <div id="movies-tab" class="tab-content active">
+        <div class="grid-container" id="movies-list"></div>
+    </div>
+
+    <!-- Oblíbené -->
+    <div id="favorites-tab" class="tab-content">
+        <div class="grid-container" id="favorites-list"></div>
+    </div>
+
+    <!-- Uživatelé -->
+    <div id="users-tab" class="tab-content">
+        <div class="grid-container" id="users-list"></div>
+    </div>
+</div>
+
+<!-- Modální okno filmu -->
+<div id="movieModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">×</span>
+        <div class="modal-body-layout">
+            <img id="modalPoster" src="" alt="Plakát">
+            <div class="modal-info-block">
+                <h2 id="modalTitle"></h2>
+                <p id="modalMeta"></p>
+                <p id="modalDescription"></p>
+                <button class="btn btn-watch" id="watchTrailerBtn">▶️ Přehrát trailer</button>
+            </div>
+        </div>
+
+        <hr style="border: 1px solid #333; margin: 25px 0;">
+        <h3>💬 Komentáře</h3>
+        <div id="commentsSection"></div>
+
+        <div class="add-comment-box">
+            <input type="text" id="newCommentInput" placeholder="Napište komentář...">
+            <button class="btn btn-primary" onclick="submitComment()">Odeslat</button>
+        </div>
+    </div>
+</div>
+
+<!-- Video modal -->
+<div id="videoModal" class="modal-video">
+    <div class="modal-video-content">
+        <span class="close-video" onclick="closeVideoModal()">×</span>
+        <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
