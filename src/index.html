@@ -13,6 +13,7 @@
     </a>
     <button class="nav-btn active" onclick="switchTab('movies-tab', event)">🍿 Filmy</button>
     <button class="nav-btn" onclick="switchTab('favorites-tab', event)">❤️ Oblíbené</button>
+    <button class="nav-btn" onclick="switchTab('community-tab', event)">💬 Komunita</button>
     <button class="nav-btn" onclick="switchTab('users-tab', event)">👥 Uživatelé</button>
 </div>
 
@@ -27,29 +28,51 @@
             </div>
             <div class="dropdown-content" id="profileDropdown">
                 <div class="dropdown-header">
-                    <strong id="current-username">A. Vývojář</strong>
-                    <span id="current-user-role">Administrátor</span>
+                    <strong id="current-username">Nepřihlášen</strong>
+                    <span id="current-user-role">Host</span>
                 </div>
                 <hr>
-                <div class="switch-mock-user">
-                    <label>Změnit roli (test):</label>
-                    <select id="userRoleSelector" onchange="mockUserChange(this.value)">
-                        <option value="ADMIN">Administrátor</option>
-                        <option value="MODERATOR">Moderátor</option>
-                        <option value="USER">Uživatel</option>
-                    </select>
+
+                <div class="auth-switch" id="authSwitch">
+                    <button class="auth-switch__btn active" type="button" onclick="showAuthPanel('login')">Přihlášení</button>
+                    <button class="auth-switch__btn" type="button" onclick="showAuthPanel('register')">Registrace</button>
+                </div>
+
+                <form class="auth-form" id="loginPanel" onsubmit="loginUser(event)">
+                    <input type="text" id="loginInput" placeholder="Login nebo e-mail" autocomplete="username">
+                    <input type="password" id="passwordInput" placeholder="Heslo" autocomplete="current-password">
+                    <button class="btn btn-primary" type="submit">Přihlásit</button>
+                    <p class="form-error" id="loginError"></p>
+                </form>
+
+                <form class="auth-form" id="registerPanel" onsubmit="registerUser(event)">
+                    <input type="text" id="registerNameInput" placeholder="Login" autocomplete="username">
+                    <input type="email" id="registerEmailInput" placeholder="E-mail" autocomplete="email">
+                    <input type="password" id="registerPasswordInput" placeholder="Heslo" autocomplete="new-password">
+                    <button class="btn btn-primary" type="submit">Zaregistrovat</button>
+                    <p class="form-error" id="registerError"></p>
+                </form>
+
+                <div class="profile-panel" id="profilePanel">
+                    <form class="auth-form" onsubmit="saveProfile(event)">
+                        <input type="text" id="profileNameInput" placeholder="Jméno" autocomplete="name">
+                        <input type="email" id="profileEmailInput" placeholder="E-mail" autocomplete="email">
+                        <input type="password" id="profilePasswordInput" placeholder="Nové heslo" autocomplete="new-password">
+                        <button class="btn btn-primary" type="submit">Uložit profil</button>
+                    </form>
+                    <button class="btn btn-secondary logout-btn" onclick="logoutUser()">Odhlásit</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="filter-bar">
+    <div class="filter-bar" id="movieFilterBar">
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
             <input type="text" id="movieSearchInput" placeholder="Hledat filmy..." oninput="handleSearch()">
         </div>
         <div class="action-buttons">
-            <button class="btn btn-secondary" onclick="loadMovies()">Zobrazit vše</button>
+            <button class="btn btn-secondary" onclick="resetMovieSearch()">Zobrazit vše</button>
             <button class="btn btn-primary" onclick="loadRandomMovie()">🎲 Náhodný</button>
         </div>
     </div>
@@ -64,9 +87,65 @@
         <div class="grid-container" id="favorites-list"></div>
     </div>
 
+    <!-- Komunita -->
+    <div id="community-tab" class="tab-content">
+        <div class="community-panel" id="communityPanel">
+            <div class="community-locked" id="communityLocked">
+                Přihlaste se, abyste mohli psát přátelům.
+            </div>
+
+            <div class="community-layout" id="communityLayout">
+                <aside class="friends-panel">
+                    <div class="community-title">Přátelé</div>
+                    <div class="friends-list" id="friendsList"></div>
+                </aside>
+
+                <section class="chat-panel">
+                    <div class="chat-header">
+                        <div>
+                            <span class="chat-label">Konverzace</span>
+                            <h2 id="chatFriendName">Vyberte přítele</h2>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <form class="chat-form" onsubmit="sendCommunityMessage(event)">
+                        <input type="text" id="chatMessageInput" placeholder="Napište zprávu..." autocomplete="off">
+                        <button class="btn btn-primary" type="submit">Odeslat</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <!-- Uživatelé -->
     <div id="users-tab" class="tab-content">
-        <div class="grid-container" id="users-list"></div>
+        <div class="admin-panel">
+            <div class="admin-panel__header">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="userSearchInput" placeholder="Hledat uživatele..." oninput="handleUserSearch()">
+                </div>
+                <button class="btn btn-secondary" onclick="resetUserSearch()">Zobrazit vše</button>
+            </div>
+
+            <form class="user-create-form" id="adminCreateUserPanel" onsubmit="createUser(event)">
+                <input type="text" id="newUserNameInput" placeholder="Jméno uživatele" autocomplete="off">
+                <input type="email" id="newUserEmailInput" placeholder="E-mail" autocomplete="off">
+                <input type="password" id="newUserPasswordInput" placeholder="Heslo" autocomplete="new-password">
+                <select id="newUserRoleSelect">
+                    <option value="USER">Uživatel</option>
+                    <option value="MODERATOR">Moderátor</option>
+                    <option value="ADMIN">Administrátor</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Přidat uživatele</button>
+            </form>
+
+            <p class="admin-access-hint" id="adminAccessHint">
+                Správa uživatelů je dostupná pouze pro roli Administrátor.
+            </p>
+
+            <div class="users-list" id="users-list"></div>
+        </div>
     </div>
 </div>
 
