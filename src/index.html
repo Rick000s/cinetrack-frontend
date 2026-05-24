@@ -71,6 +71,15 @@
             <span class="search-icon">🔍</span>
             <input type="text" id="movieSearchInput" placeholder="Hledat filmy..." oninput="handleSearch()">
         </div>
+        <div class="movie-filter-controls">
+            <select id="genreFilterSelect" onchange="handleMovieFilterChange()">
+                <option value="">Vsechny zanry</option>
+            </select>
+            <select id="movieSortSelect" onchange="handleMovieFilterChange()">
+                <option value="">Vychozi razeni</option>
+                <option value="genre">Radit podle zanru</option>
+            </select>
+        </div>
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="resetMovieSearch()">Zobrazit vše</button>
             <button class="btn btn-primary" onclick="loadRandomMovie()">🎲 Náhodný</button>

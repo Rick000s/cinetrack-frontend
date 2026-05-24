@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://cinetrack-backend-kbq7.onrender.com";
 const API_URL = `${BASE_URL}/api/movies`;
 const USERS_API_URL = `${BASE_URL}/api/users`;
 const AUTH_API_URL = `${BASE_URL}/api/auth`;
@@ -26,6 +26,7 @@ let userSearchTimer = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     restoreSession();
+    loadMovieGenres();
     loadMovies();
     updateAuthUI();
 });
@@ -283,14 +284,56 @@ function getMovieSearchQuery() {
     return document.getElementById("movieSearchInput")?.value.trim() || "";
 }
 
+function getMovieGenreFilter() {
+    return document.getElementById("genreFilterSelect")?.value || "";
+}
+
+function getMovieSort() {
+    return document.getElementById("movieSortSelect")?.value || "";
+}
+
 function buildUrl(url, query) {
-    if (!query) return url;
-    return `${url}?query=${encodeURIComponent(query)}`;
+    return buildUrlWithParams(url, { query });
+}
+
+function buildMovieUrl(url, query, genre = getMovieGenreFilter(), sort = getMovieSort()) {
+    return buildUrlWithParams(url, { query, genre, sort });
+}
+
+function buildUrlWithParams(url, params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value) searchParams.set(key, value);
+    });
+
+    const queryString = searchParams.toString();
+    return queryString ? `${url}?${queryString}` : url;
+}
+
+async function loadMovieGenres() {
+    try {
+        const res = await fetch(`${API_URL}/genres`);
+        if (!res.ok) throw new Error("Zanry se nepodarilo nacist");
+
+        const genres = await res.json();
+        const select = document.getElementById("genreFilterSelect");
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Vsechny zanry</option>';
+        genres.forEach(genre => {
+            const option = document.createElement("option");
+            option.value = genre;
+            option.innerText = genre;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 async function loadMovies(query = getMovieSearchQuery()) {
     try {
-        const res = await fetch(buildUrl(API_URL, query));
+        const res = await fetch(buildMovieUrl(API_URL, query));
         if (!res.ok) throw new Error("Nepodařilo se načíst filmy");
 
         allMovies = await res.json();
@@ -312,9 +355,23 @@ function handleSearch() {
     }, 250);
 }
 
+function handleMovieFilterChange() {
+    if (activeTab === "favorites-tab") {
+        loadFavorites();
+    } else {
+        loadMovies();
+    }
+}
+
 function resetMovieSearch() {
     const input = document.getElementById("movieSearchInput");
     if (input) input.value = "";
+
+    const genreSelect = document.getElementById("genreFilterSelect");
+    if (genreSelect) genreSelect.value = "";
+
+    const sortSelect = document.getElementById("movieSortSelect");
+    if (sortSelect) sortSelect.value = "";
 
     if (activeTab === "favorites-tab") {
         loadFavorites("");
@@ -348,6 +405,7 @@ async function renderMovies(movies, containerId) {
             <img src="${escapeAttribute(movie.posterUrl)}" class="movie-poster" alt="${escapeAttribute(movie.title)}">
             <div class="card-info">
                 <div class="card-title">${escapeHtml(movie.title)}</div>
+                <div class="card-genre">${escapeHtml(getMovieGenreLabel(movie))}</div>
                 <div class="card-meta">
                     <span class="rating-badge">★ ${Number(movie.rating || 0).toFixed(1)}</span>
                     <button class="fav-heart ${isFav ? "active" : ""}" type="button" aria-label="Oblíbené">❤</button>
@@ -528,9 +586,19 @@ async function loadFavorites(query = getMovieSearchQuery()) {
 
         const favoritesList = await res.json();
         const normalizedQuery = query.toLowerCase();
-        const filteredFavorites = normalizedQuery
-            ? favoritesList.filter(movie => movieMatchesQuery(movie, normalizedQuery))
-            : favoritesList;
+        const selectedGenre = getMovieGenreFilter();
+        const sort = getMovieSort();
+
+        let filteredFavorites = favoritesList
+            .filter(movie => !normalizedQuery || movieMatchesQuery(movie, normalizedQuery))
+            .filter(movie => movieMatchesGenre(movie, selectedGenre));
+
+        if (sort === "genre") {
+            filteredFavorites = filteredFavorites.sort((a, b) =>
+                getMovieGenreLabel(a).localeCompare(getMovieGenreLabel(b))
+                || String(a.title || "").localeCompare(String(b.title || ""))
+            );
+        }
 
         renderMovies(filteredFavorites, "favorites-list");
     } catch (e) {
@@ -540,8 +608,26 @@ async function loadFavorites(query = getMovieSearchQuery()) {
 }
 
 function movieMatchesQuery(movie, query) {
-    return [movie.title, movie.genre, movie.description, movie.year]
+    return [movie.title, movie.genre, movie.description, movie.year, getMovieGenreLabel(movie)]
         .some(value => String(value || "").toLowerCase().includes(query));
+}
+
+function movieMatchesGenre(movie, selectedGenre) {
+    if (!selectedGenre) return true;
+
+    const genres = Array.isArray(movie.genres) && movie.genres.length > 0
+        ? movie.genres
+        : String(movie.genre || "").split(",");
+
+    return genres.some(genre => genre.trim().toLowerCase() === selectedGenre.toLowerCase());
+}
+
+function getMovieGenreLabel(movie) {
+    if (Array.isArray(movie.genres) && movie.genres.length > 0) {
+        return movie.genres.join(", ");
+    }
+
+    return movie.genre || "";
 }
 
 // ====================== KOMUNITA ======================
